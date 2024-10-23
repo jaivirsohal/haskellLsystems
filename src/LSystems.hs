@@ -17,21 +17,25 @@ type ColouredLine = (Vertex, Vertex, Colour)
 
 -- Returns the rotation angle for the given system.
 angle :: LSystem -> Float
-angle = undefined
+angle (LSystem a _ _) = a
 
 -- Returns the axiom string for the given system.
 axiom :: LSystem -> [Char]
-axiom = undefined
+axiom (LSystem _ a _) = a
 
 -- Returns the set of rules for the given system.
 rules :: LSystem -> Rules Char
-rules = undefined
+rules (LSystem _ _ a) = a 
 
 --
 -- Pre: the character has a binding in the Rules list
 --
 lookupChar :: Rules a -> Char -> [a]
-lookupChar = undefined
+lookupChar [] _ = []
+lookupChar (r:rs) c
+    | a == c = b
+    | otherwise = lookupChar rs c
+    where (a, b) = r
 
 --
 -- Expand command string s once using rule table r
