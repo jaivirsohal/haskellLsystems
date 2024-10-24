@@ -68,16 +68,14 @@ move cmd theta state = case cmd of
 degreesToRadians :: Float -> Float
 degreesToRadians x = (x / 180) * pi
 
--- Parse function -
--- Added own test cases
+-- Parse function
 parse :: Rules Command -> [Char] -> [Command]
 parse rs "" = []
 parse rs (']':cs) = []
 parse rs (c:cs)
-   | c == '[' = B (parse rs inside) : parse rs rest
-   | otherwise = replace ++ parse rs cs
-   where replace = lookupChar rs c
-         (inside, rest) = splitBrackets cs
+   | c == '[' = let (inside, rest) = splitBrackets cs
+                in  B (parse rs inside) : parse rs rest
+   | otherwise = lookupChar rs c ++ parse rs cs 
 
 -- Helper function to get inside and outside of brackets
 splitBrackets :: [Char] -> ([Char], [Char])
@@ -90,7 +88,21 @@ splitBrackets = go 0 []
     go n acc (c:cs) = go n (c:acc) cs
 
 trace1 :: [Command] -> Float -> Colour -> [ColouredLine]
-trace1 = undefined
+trace1 cmds angle col = t1 cmds initialState
+  where
+    t1 :: [Command] -> TurtleState -> [ColouredLine]
+    t1 [] _ = []
+    t1 (B cmds : cmds') state = t1 cmds state ++ t1 cmds' state
+    t1 (cmd : cmds) state@((x, y), theta)
+      | F <- cmd = let ((newX, newY), newTheta) = updateState
+                       newLine = ((x, y), (newX, newY), col)
+                    in newLine : t1 cmds ((newX, newY), newTheta)
+      | otherwise = t1 cmds updateState
+      where updateState = move cmd angle state
+
+-- Starting point for drawing
+initialState :: TurtleState
+initialState = ((0, 0), 90)
 
 -- This version uses an explicit stack of residual commands and turtle states
 trace2 :: [Command] -> Float -> Colour -> [ColouredLine]
