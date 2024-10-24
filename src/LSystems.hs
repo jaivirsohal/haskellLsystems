@@ -68,8 +68,26 @@ move cmd theta state = case cmd of
 degreesToRadians :: Float -> Float
 degreesToRadians x = (x / 180) * pi
 
+-- Parse function -
+-- Added own test cases
 parse :: Rules Command -> [Char] -> [Command]
-parse = undefined
+parse rs "" = []
+parse rs (']':cs) = []
+parse rs (c:cs)
+   | c == '[' = B (parse rs inside) : parse rs rest
+   | otherwise = replace ++ parse rs cs
+   where replace = lookupChar rs c
+         (inside, rest) = splitBrackets cs
+
+-- Helper function to get inside and outside of brackets
+splitBrackets :: [Char] -> ([Char], [Char])
+splitBrackets = go 0 []
+  where
+    go _ acc [] = (reverse acc, [])
+    go 0 acc (']':cs) = (reverse acc, cs)
+    go n acc (']':cs) = go (n-1) (']':acc) cs
+    go n acc ('[':cs) = go (n+1) ('[':acc) cs
+    go n acc (c:cs) = go n (c:acc) cs
 
 trace1 :: [Command] -> Float -> Colour -> [ColouredLine]
 trace1 = undefined
