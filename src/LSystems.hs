@@ -41,13 +41,15 @@ lookupChar (r:rs) c
 -- Expand command string s once using rule table r
 --
 expandOne :: Rules Char -> [Char] -> [Char]
-expandOne = undefined
+expandOne _ [] = ""
+expandOne rs (c:cs) = lookupChar rs c ++ expandOne rs cs
 
 --
 -- Expand command string s n times using rule table r
 --
 expand :: [Char] -> Int -> Rules Char -> [Char]
-expand = undefined
+expand cs 0 rs = cs
+expand cs n rs = expand (expandOne rs cs) (n-1) rs
 
 -- Move a turtle.
 --
@@ -55,7 +57,13 @@ expand = undefined
 -- L rotates left according to the given angle.
 -- R rotates right according to the given angle.
 move :: Command -> Float -> TurtleState -> TurtleState
-move = undefined
+move cmd theta state = case cmd of
+   F -> ((x + cos angleRad, y + sin angleRad), angle)
+   L -> (coord,  angle + theta)
+   R -> (coord,  angle - theta)
+   where (coord, angle) = state
+         (x, y) = coord
+         angleRad = degreesToRadians angle
 
 degreesToRadians :: Float -> Float
 degreesToRadians x = (x / 180) * pi
