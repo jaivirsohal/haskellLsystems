@@ -87,6 +87,10 @@ splitBrackets = go 0 []
     go n acc ('[':cs) = go (n+1) ('[':acc) cs
     go n acc (c:cs) = go n (c:acc) cs
 
+-- Starting point for drawing
+initialState :: TurtleState
+initialState = ((0, 0), 90)
+
 trace1 :: [Command] -> Float -> Colour -> [ColouredLine]
 trace1 cmds angle col = t1 cmds initialState
   where
@@ -100,13 +104,23 @@ trace1 cmds angle col = t1 cmds initialState
       | otherwise = t1 cmds updateState
       where updateState = move cmd angle state
 
--- Starting point for drawing
-initialState :: TurtleState
-initialState = ((0, 0), 90)
+-- Define a stack to track command list and state
+type Stack = [([Command], TurtleState)]
 
 -- This version uses an explicit stack of residual commands and turtle states
 trace2 :: [Command] -> Float -> Colour -> [ColouredLine]
-trace2 = undefined
+trace2 cmds angle col = t2 cmds initialState []
+  where
+    t2 :: [Command] -> TurtleState -> Stack -> [ColouredLine]
+    t2 [] _ [] = []
+    t2 [] _ ((cmds', state) : stack) = t2 cmds' state stack
+    t2 (B cmds : cmds') state stack = t2 cmds state ((cmds', state) : stack)
+    t2 (cmd : cmds) state@((x, y), theta) stack
+      | F <- cmd = let ((newX, newY), newTheta) = updateState
+                       newLine = ((x, y), (newX, newY), col)
+                    in newLine : t2 cmds ((newX, newY), newTheta) stack
+      | otherwise = t2 cmds updateState stack
+      where updateState = move cmd angle state
 
 -- Provided Functions
 ------------------------------------------------------------------------------
