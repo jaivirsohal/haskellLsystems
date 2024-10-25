@@ -87,7 +87,7 @@ splitBrackets = go 0 []
     go nestLevel acc ('[':cs) = go (nestLevel+1) ('[':acc) cs
     go nestLevel acc (c:cs) = go nestLevel (c:acc) cs
 
--- Starting point for drawing
+-- Starting point and angle for turtle
 initialState :: TurtleState
 initialState = ((0, 0), 90)
 
