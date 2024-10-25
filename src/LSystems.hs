@@ -83,9 +83,9 @@ splitBrackets = go 0 []
   where
     go _ acc [] = (reverse acc, [])
     go 0 acc (']':cs) = (reverse acc, cs)
-    go n acc (']':cs) = go (n-1) (']':acc) cs
-    go n acc ('[':cs) = go (n+1) ('[':acc) cs
-    go n acc (c:cs) = go n (c:acc) cs
+    go nestLevel acc (']':cs) = go (nestLevel-1) (']':acc) cs
+    go nestLevel acc ('[':cs) = go (nestLevel+1) ('[':acc) cs
+    go nestLevel acc (c:cs) = go nestLevel (c:acc) cs
 
 -- Starting point for drawing
 initialState :: TurtleState
